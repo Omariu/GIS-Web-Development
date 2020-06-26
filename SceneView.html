@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GIS Web Development - Scene View, 3d Maps and Graphics</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+
+    <script>
+      var view;
+      require(["esri/Map", "esri/views/SceneView"], function (Map, SceneView) {
+        var map = new Map({
+          basemap: "satellite",
+        });
+
+        view = new SceneView({
+          id: "view",
+          container: "viewDiv",
+          map: map,
+          camera: {
+            position: [
+              35, // lon
+              30, // lat
+              1000000, // z ,meters
+            ],
+            // heading: 180,
+            tilt: 45,
+          },
+          //   environment: {
+          //     background: {
+          //       type: "color",
+          //       color: [0, 0, 255, 1],
+          //     },
+          //     starsEnabled: true,
+          //   },
+        });
+
+        view.on("click", function (event) {
+          var point = view.toMap({ x: event.x, y: event.y });
+          console.log(point);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv" style="width: 100%; height: 100%;"></div>
+  </body>
+</html>

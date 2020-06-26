@@ -1,0 +1,100 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GIS Web Development - QueryTask</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+
+    <script>
+      var view;
+      require([
+        "esri/Map",
+        "esri/views/SceneView",
+        "esri/tasks/QueryTask",
+        "esri/tasks/support/Query",
+        "esri/layers/GraphicsLayer",
+      ], function (Map, SceneView, QueryTask, Query, GraphicsLayer) {
+        var resultsLayer = new GraphicsLayer();
+
+        view = new SceneView({
+          id: "view",
+          container: "viewDiv",
+          map: new Map({
+            basemap: "hybrid",
+            layers: [resultsLayer],
+          }),
+          popup: {
+            dockEnabled: true,
+            dockOptions: {
+              position: "bottom-center",
+              breakpoint: false,
+            },
+          },
+        });
+
+        var queryTask = new QueryTask({
+          url:
+            "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/Prominent_Peaks_US/FeatureServer/0",
+        });
+
+        var query = new Query();
+        query.returnGeometry = true;
+        query.outFields = ["*"];
+        query.where = "1=1";
+
+        var popupTemplate = {
+          title: "{STATE}",
+          content:
+            "Rank: {RANK} <br /> OBJECTID:{OBJECTID} <br />MTN_PEAK: {MTN_PEAK}  ",
+        };
+        queryTask.execute(query).then(function (response) {
+          var graphices = response.features.map(function (feature) {
+            feature.symbol = {
+              type: "point-3d",
+              symbolLayers: [
+                {
+                  type: "object",
+                  material: {
+                    color: "green",
+                  },
+                  resource: {
+                    primitive: "cone",
+                  },
+                  width: 100000,
+                  height: 100000,
+                },
+              ],
+            };
+
+            feature.popupTemplate = popupTemplate;
+            return feature;
+          });
+          resultsLayer.addMany(graphices);
+
+          view.goTo(graphices).then(function () {
+            view.popup.open({
+              features: graphices,
+              featureMenuOpen: true,
+              updateLocationEnabled: true,
+            });
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv" style="width: 100%; height: 100%;"></div>
+  </body>
+</html>
