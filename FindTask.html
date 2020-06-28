@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>GIS Web Development - FindTask</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      #mainDiv {
+        position: absolute;
+        z-index: 70;
+        top: 0px;
+        left: 0;
+        bottom: 0;
+        box-sizing: border-box;
+        padding: 20px;
+        height: 100%;
+        width: 400px;
+        background: rgba(0, 0, 0);
+        color: white;
+        font-size: 14px;
+        line-height: 30px;
+        overflow: auto;
+      }
+
+      #mainDiv span {
+        color: #f2f2f2;
+        font-weight: bold;
+      }
+    </style>
+    <script>
+      var view;
+
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/GraphicsLayer",
+        "esri/tasks/FindTask",
+        "esri/tasks/support/FindParameters",
+      ], function (Map, MapView, GraphicsLayer, FindTask, FindParameters) {
+        var resultsLayer = new GraphicsLayer();
+        view = new MapView({
+          id: "view",
+          container: "viewDiv",
+          map: new Map({
+            basemap: "dark-gray",
+            layers: [resultsLayer],
+          }),
+          popup: {
+            dockEnabled: true,
+            dockOptions: {
+              position: "bottom-center",
+              breakpoint: false,
+            },
+          },
+          padding: {
+            left: 400,
+          },
+          zoom: 3,
+        });
+
+        var find = new FindTask({
+          url:
+            "https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer",
+        });
+
+        var params = new FindParameters({
+          layerIds: [0, 1, 2, 3],
+          searchFields: ["areaname", "objectid", "state_name"],
+          returnGeometry: true,
+        });
+
+        document.querySelector("#btnSearch").onclick = function () {
+          params.searchText = document.querySelector("#txtSearch").value;
+          document.querySelector("#searchResult").innerHTML = "";
+
+          find.execute(params).then(function (response) {
+            var results = response.results;
+            var graphices = results.map(function (result) {
+              var feature = result.feature;
+
+              var attributes = feature.attributes;
+              var resultItems = [];
+              for (var attr in attributes)
+                resultItems.push(
+                  "<span>" + attr + ":" + attributes[attr] + "</span><br />"
+                );
+
+              document.querySelector("#searchResult").innerHTML +=
+                "<div>" + resultItems.join("") + "</div><hr>";
+
+              if (feature.geometry.type === "point") {
+                feature.symbol = {
+                  type: "simple-marker",
+                  color: [226, 119, 40],
+                };
+              } else if (feature.geometry.type === "polyline") {
+                feature.symbol = {
+                  type: "simple-line",
+                  color: [255, 0, 0],
+                  width: 3,
+                };
+              } else {
+                feature.symbol = {
+                  type: "simple-fill",
+                  color: [51, 51, 204, 0.2],
+                  style: "solid",
+                  outline: {
+                    color: "red",
+                    width: 5000,
+                  },
+                };
+              }
+
+              return feature;
+            });
+
+            resultsLayer.addMany(graphices);
+            view.goTo(graphices);
+          });
+        };
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div id="mainDiv" class="esri-widget">
+      <input
+        type="input"
+        id="txtSearch"
+        placeholder="enter search text"
+        value="New"
+      />
+      <input type="button" id="btnSearch" value="Search" />
+      <hr />
+      <div id="searchResult"></div>
+    </div>
+  </body>
+</html>
