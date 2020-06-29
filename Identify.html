@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>GIS Web Development - Identify</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+      }
+    </style>
+    <script>
+      var view;
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/GraphicsLayer",
+        "esri/tasks/IdentifyTask",
+        "esri/tasks/support/IdentifyParameters",
+      ], function (
+        Map,
+        MapView,
+        GraphicsLayer,
+        IdentifyTask,
+        IdentifyParameters
+      ) {
+        var identifyTask, params;
+
+        var resultsLayer = new GraphicsLayer();
+        view = new MapView({
+          id: "view",
+          container: "viewDiv",
+          map: new Map({
+            basemap: "dark-gray",
+            layers: [resultsLayer],
+          }),
+          popup: {
+            dockEnabled: true,
+            dockOptions: {
+              position: "bottom-center",
+              breakpoint: false,
+            },
+          },
+          zoom: 4,
+          center: [-100, 40],
+        });
+
+        identifyTask = new IdentifyTask({
+          url:
+            "https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer",
+        });
+
+        params = new IdentifyParameters();
+        params.tolerance = 15;
+        params.layerIds = [0, 1, 2, 3];
+        params.width = view.width;
+        params.height = view.height;
+        params.returnGeometry = true;
+        params.returnFieldName = true;
+        params.layerOption = "all";
+
+        view.on("click", executeIdentifyTask);
+
+        function executeIdentifyTask(event) {
+          params.geometry = event.mapPoint;
+          params.mapExtent = view.extent;
+          document.getElementById("viewDiv").style.cursor = "wait";
+
+          identifyTask
+            .execute(params)
+            .then(function (response) {
+              var results = response.results;
+
+              return results.map(function (result) {
+                var feature = result.feature;
+                var layerName = result.layerName;
+
+                // feature.attributes.layerName = layerName;
+
+                // var attributes = feature.attributes;
+                // var resultItems = [];
+                // for (var attr in attributes)
+                //   resultItems.push(
+                //     "<span>" + attr + ":" + attributes[attr] + "</span><br />"
+                //   );
+
+                // feature.popupTemplate = {
+                //   title: layerName,
+                //   content: resultItems.join(""),
+                // };
+
+                if (layerName === "States") {
+                  feature.popupTemplate = {
+                    title: layerName,
+                    content: "state_name: {state_name}",
+                  };
+                } else if (layerName === "Highways") {
+                  feature.popupTemplate = {
+                    title: layerName,
+                    content: "length:{length}",
+                  };
+                } else if (layerName === "Counties") {
+                  feature.popupTemplate = {
+                    title: layerName,
+                    content: "name:{name}",
+                  };
+                } else {
+                  feature.popupTemplate = {
+                    title: layerName,
+                    content: "areaname:{areaname}",
+                  };
+                }
+
+                return feature;
+              });
+            })
+            .then(showPopup); // Send the array of features to showPopup()
+
+          function showPopup(response) {
+            if (response.length > 0) {
+              view.popup.open({
+                features: response,
+                location: event.mapPoint,
+              });
+            }
+            document.getElementById("viewDiv").style.cursor = "auto";
+          }
+        }
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
