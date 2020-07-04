@@ -1,0 +1,91 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GIS Web Development - Widgets</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+
+    <script>
+      var view;
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/Home",
+        "esri/widgets/BasemapGallery",
+        "esri/widgets/BasemapToggle",
+        "esri/widgets/ScaleBar",
+        "esri/widgets/Compass",
+      ], function (
+        Map,
+        MapView,
+        Home,
+        BasemapGallery,
+        BasemapToggle,
+        ScaleBar,
+        Compass
+      ) {
+        view = new MapView({
+          id: "view",
+          container: "viewDiv",
+          map: new Map({
+            basemap: "dark-gray",
+          }),
+          zoom: 3,
+        });
+
+        var basemapToggle = new BasemapToggle({
+          view: view, // The view that provides access to the map's "streets" basemap
+          nextBasemap: "hybrid", // Allows for toggling to the "hybrid" basemap
+        });
+
+        view.ui.add(basemapToggle, {
+          position: "bottom-right",
+        });
+
+        var homeWidget = new Home({
+          view: view,
+        });
+
+        view.ui.add(homeWidget, "top-left");
+        view.ui.move("zoom", "top-left");
+
+        // var basemapGallery = new BasemapGallery({
+        //   view: view,
+        // });
+        // // Add widget to the top right corner of the view
+        // view.ui.add(basemapGallery, {
+        //   position: "bottom-right",
+        // });
+
+        var scaleBar = new ScaleBar({
+          view: view,
+        });
+        view.ui.add(scaleBar, {
+          position: "bottom-left",
+        });
+
+        var compass = new Compass({
+          view: view,
+        });
+
+        // adds the compass to the top left corner of the MapView
+        view.ui.add(compass, "top-left");
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv" style="width: 100%; height: 100%;"></div>
+  </body>
+</html>
