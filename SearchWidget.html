@@ -1,0 +1,123 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GIS Web Development - Search Widget</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/dark-blue/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+
+    <script>
+      var searchWidget;
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/Search",
+        "esri/tasks/Locator",
+        "esri/layers/FeatureLayer",
+      ], function (Map, MapView, Search, Locator, FeatureLayer) {
+        var map = new Map({
+          basemap: "dark-gray",
+        });
+
+        var view = new MapView({
+          id: "view",
+          container: "viewDiv",
+          map: map,
+          zoom: 3,
+        });
+
+        searchWidget = new Search({
+          view: view,
+          autoSelect: true,
+          maxResults: 10,
+          maxSuggestions: 10,
+          minSuggestCharacters: 4,
+          //   searchTerm: "cairo",
+          //   allPlaceholder: "search",
+          sources: [
+            {
+              locator: new Locator({
+                url:
+                  "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer",
+              }),
+              singleLineFieldName: "SingleLine",
+              name: "Custom Geocoding Service",
+              placeholder: "Search Geocoder",
+              maxResults: 3,
+              maxSuggestions: 6,
+              suggestionsEnabled: false,
+              minSuggestCharacters: 0,
+            },
+            {
+              layer: new FeatureLayer({
+                url:
+                  "https://services.arcgis.com/DO4gTjwJVIJ7O9Ca/arcgis/rest/services/GeoForm_Survey_v11_live/FeatureServer/0",
+                outFields: ["*"],
+              }),
+              searchFields: ["Email", "URL"],
+              displayField: "Email",
+              exactMatch: false,
+              outFields: ["*"],
+              name: "Point FS",
+              placeholder: "example: esri",
+              maxResults: 6,
+              maxSuggestions: 6,
+              suggestionsEnabled: true,
+              minSuggestCharacters: 0,
+            },
+            {
+              layer: new FeatureLayer({
+                outFields: ["*"],
+              }),
+              placeholder: "esri",
+              name: "A FeatureLayer",
+              prefix: "",
+              suffix: "",
+              maxResults: 1,
+              maxSuggestions: 6,
+              exactMatch: false,
+              searchFields: [], // defaults to FeatureLayer.displayField
+              displayField: "", // defaults to FeatureLayer.displayField
+              minSuggestCharacters: 0,
+            },
+          ],
+        });
+
+        searchWidget.on("search-complete", function (event) {
+          console.log("Results of the search: ", event);
+        });
+
+        searchWidget.on("search-clear", function (event) {
+          console.log("Cleared");
+        });
+
+        searchWidget.on("search-start", function (event) {
+          console.log("search-start");
+        });
+
+        searchWidget.on("search-focus", function (event) {
+          console.log("search-focus");
+        });
+
+        view.ui.add(searchWidget, {
+          position: "top-right",
+          index: 2,
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv" style="width: 100%; height: 100%;"></div>
+  </body>
+</html>
