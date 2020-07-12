@@ -1,0 +1,168 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GIS Web Development - HeatmapRenderer</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/dark-blue/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+
+    <script>
+      var featureLayer;
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Legend",
+      ], function (Map, MapView, FeatureLayer, Legend) {
+        var map = new Map({
+          basemap: "dark-gray",
+        });
+
+        var view = new MapView({
+          id: "view",
+          container: "viewDiv",
+          map: map,
+          extent: {
+            xmin: -9177811,
+            ymin: 4247000,
+            xmax: -9176791,
+            ymax: 4247784,
+            spatialReference: 102100,
+          },
+        });
+
+        var heatmapRenderer = {
+          type: "heatmap",
+          colorStops: [
+            { ratio: 0, color: "rgba(255, 140, 0, 0)" },
+            { ratio: 0.75, color: "rgba(255, 140, 0, 1)" },
+            { ratio: 0.9, color: "rgba(255, 0,   0, 1)" },
+          ],
+          // colorStops: [
+          //   { color: "rgba(63, 40, 102, 0)", ratio: 0 },
+          //   { color: "#472b77", ratio: 0.083 },
+          //   { color: "#4e2d87", ratio: 0.166 },
+          //   { color: "#563098", ratio: 0.249 },
+          //   { color: "#5d32a8", ratio: 0.332 },
+          //   { color: "#6735be", ratio: 0.415 },
+          //   { color: "#7139d4", ratio: 0.498 },
+          //   { color: "#7b3ce9", ratio: 0.581 },
+          //   { color: "#853fff", ratio: 0.664 },
+          //   { color: "#a46fbf", ratio: 0.747 },
+          //   { color: "#c29f80", ratio: 0.83 },
+          //   { color: "#e0cf40", ratio: 0.913 },
+          //   { color: "#ffff00", ratio: 1 },
+          // ],
+          maxPixelIntensity: 100,
+          minPixelIntensity: 0,
+          // field: "Height",
+          // blurRadius: 20,
+        };
+
+        var colorVisVar = {
+          type: "color",
+          field: "Height",
+          stops: [
+            {
+              value: 20,
+              color: [0, 255, 0, 0.4],
+            },
+            {
+              value: 30,
+              color: [255, 0, 0, 0.4],
+            },
+            {
+              value: 40,
+              color: [0, 0, 255, 0.4],
+            },
+            {
+              value: 60,
+              color: [255, 255, 255, 1],
+            },
+          ],
+        };
+
+        var sizeVisVar = {
+          type: "size",
+          field: "Height",
+          valueUnit: "meters",
+          stops: [
+            {
+              value: 20,
+              size: 20,
+            },
+            {
+              value: 30,
+              size: 30,
+            },
+            {
+              value: 40,
+              size: 40,
+            },
+            {
+              value: 60,
+              size: 60,
+            },
+            {
+              value: 80,
+              size: 80,
+            },
+          ],
+        };
+
+        var simpleRenderer = {
+          type: "simple", // autocasts as new SimpleRenderer()
+          // Define a default marker symbol with a small outline
+          symbol: {
+            type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
+            color: [0, 255, 0, 0.6],
+            outline: {
+              color: [255, 0, 0],
+              width: 2,
+            },
+          },
+          visualVariables: [colorVisVar, sizeVisVar],
+        };
+
+        featureLayer = new FeatureLayer({
+          url:
+            "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/Landscape_Trees/FeatureServer/0",
+          outFields: ["*"],
+          popupTemplate: {
+            title: "{Tree_ID}",
+            content: "Height:{Height}",
+          },
+          title: "Heatmap Renderer",
+          renderer: heatmapRenderer,
+        });
+
+        map.add(featureLayer);
+
+        view.watch("scale", function (newValue) {
+          featureLayer.renderer =
+            newValue <= 2000 ? simpleRenderer : heatmapRenderer;
+        });
+
+        var legend = new Legend({
+          view: view,
+        });
+
+        view.ui.add(legend, "bottom-right");
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv" style="width: 100%; height: 100%;"></div>
+  </body>
+</html>
