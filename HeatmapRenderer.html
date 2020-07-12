@@ -44,81 +44,15 @@
 
         var heatmapRenderer = {
           type: "heatmap",
-          colorStops: [
-            { ratio: 0, color: "rgba(255, 140, 0, 0)" },
-            { ratio: 0.75, color: "rgba(255, 140, 0, 1)" },
-            { ratio: 0.9, color: "rgba(255, 0,   0, 1)" },
-          ],
           // colorStops: [
-          //   { color: "rgba(63, 40, 102, 0)", ratio: 0 },
-          //   { color: "#472b77", ratio: 0.083 },
-          //   { color: "#4e2d87", ratio: 0.166 },
-          //   { color: "#563098", ratio: 0.249 },
-          //   { color: "#5d32a8", ratio: 0.332 },
-          //   { color: "#6735be", ratio: 0.415 },
-          //   { color: "#7139d4", ratio: 0.498 },
-          //   { color: "#7b3ce9", ratio: 0.581 },
-          //   { color: "#853fff", ratio: 0.664 },
-          //   { color: "#a46fbf", ratio: 0.747 },
-          //   { color: "#c29f80", ratio: 0.83 },
-          //   { color: "#e0cf40", ratio: 0.913 },
-          //   { color: "#ffff00", ratio: 1 },
+          //   { ratio: 0, color: "rgba(255, 140, 0, 0)" },
+          //   { ratio: 0.75, color: "rgba(255, 140, 0, 1)" },
+          //   { ratio: 0.9, color: "rgba(255, 0,  0, 1)" },
           // ],
-          maxPixelIntensity: 100,
-          minPixelIntensity: 0,
-          // field: "Height",
-          // blurRadius: 20,
-        };
-
-        var colorVisVar = {
-          type: "color",
-          field: "Height",
-          stops: [
-            {
-              value: 20,
-              color: [0, 255, 0, 0.4],
-            },
-            {
-              value: 30,
-              color: [255, 0, 0, 0.4],
-            },
-            {
-              value: 40,
-              color: [0, 0, 255, 0.4],
-            },
-            {
-              value: 60,
-              color: [255, 255, 255, 1],
-            },
-          ],
-        };
-
-        var sizeVisVar = {
-          type: "size",
-          field: "Height",
-          valueUnit: "meters",
-          stops: [
-            {
-              value: 20,
-              size: 20,
-            },
-            {
-              value: 30,
-              size: 30,
-            },
-            {
-              value: 40,
-              size: 40,
-            },
-            {
-              value: 60,
-              size: 60,
-            },
-            {
-              value: 80,
-              size: 80,
-            },
-          ],
+          //maxPixelIntensity: 100,
+          // minPixelIntensity: 0,
+          //field: "Height",
+          //blurRadius: 20,
         };
 
         var simpleRenderer = {
@@ -127,12 +61,7 @@
           symbol: {
             type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
             color: [0, 255, 0, 0.6],
-            outline: {
-              color: [255, 0, 0],
-              width: 2,
-            },
           },
-          visualVariables: [colorVisVar, sizeVisVar],
         };
 
         featureLayer = new FeatureLayer({
