@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>GIS Web Development - ClassBreaksRenderer</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.16/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.16/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script>
+      function GetSymbol(color) {
+        return {
+          type: "simple-fill", // autocasts as new SimpleFillSymbol()
+          color: color,
+          style: "solid",
+          outline: {
+            width: 0.2,
+            color: [255, 255, 255, 0.5],
+          },
+        };
+      }
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Legend",
+        "esri/renderers/ClassBreaksRenderer",
+      ], function (Map, MapView, FeatureLayer, Legend, ClassBreaksRenderer) {
+        // var renderer = new ClassBreaksRenderer({
+        //   // type: "class-breaks",
+        //   field: "objectid",
+        // });
+
+        // renderer.addClassBreakInfo({
+        //   minValue: 0,
+        //   maxValue: 10,
+        //   symbol: GetSymbol("#00ff00"),
+        //   label: "0 - 10",
+        // });
+        // renderer.addClassBreakInfo({
+        //   minValue: 10,
+        //   maxValue: 20,
+        //   symbol: GetSymbol("#0000ff"),
+        //   label: "10 - 20",
+        // });
+
+        // renderer.addClassBreakInfo({
+        //   minValue: 20,
+        //   maxValue: 30,
+        //   symbol: GetSymbol("#ff0000"),
+        //   label: "20 - 30",
+        // });
+        // renderer.addClassBreakInfo({
+        //   minValue: 40,
+        //   maxValue: 51,
+        //   symbol: GetSymbol("#ff00ff"),
+        //   label: "40 - 51",
+        // });
+
+        var renderer = {
+          type: "class-breaks",
+          field: "objectid",
+          classBreakInfos: [
+            {
+              minValue: 0,
+              maxValue: 10,
+              symbol: GetSymbol("#00ff00"),
+              label: "0 - 10",
+            },
+            {
+              minValue: 10,
+              maxValue: 20,
+              symbol: GetSymbol("#0000ff"),
+              label: "10 - 20",
+            },
+            {
+              minValue: 20,
+              maxValue: 30,
+              symbol: GetSymbol("#ff0000"),
+              label: "20 - 30",
+            },
+            {
+              minValue: 30,
+              maxValue: 40,
+              symbol: GetSymbol("#ffff00"),
+              label: "30 - 40",
+            },
+            {
+              minValue: 40,
+              maxValue: 51,
+              symbol: GetSymbol("#ff00ff"),
+              label: "40 - 51",
+            },
+          ],
+        };
+
+        renderer.legendOptions = {
+          title: "Demo States",
+        };
+
+        var featureLayer = new FeatureLayer({
+          url:
+            "https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2",
+          renderer: renderer,
+          popupTemplate: {
+            title: "{state_name}",
+            content: "state_name:{state_name} <br />objectid:{objectid} <br />",
+          },
+        });
+
+        var map = new Map({
+          basemap: "dark-gray",
+          layers: [featureLayer],
+        });
+
+        var view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 3,
+        });
+
+        var legend = new Legend({
+          view: view,
+        });
+
+        view.ui.add(legend, "bottom-left");
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
