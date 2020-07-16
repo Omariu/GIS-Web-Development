@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+
+    <title>
+      GIS Web Development - UniqueValueRenderer - Visualize features by type
+    </title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.16/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.16/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(15, 15, 15, 1);
+      }
+    </style>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Legend",
+      ], function (Map, MapView, FeatureLayer, Legend) {
+        // Symbol for freeways
+        var fwySym = {
+          type: "simple-line", // autocasts as new SimpleLineSymbol()
+          color: "#30ffea",
+          width: "2px",
+          style: "solid",
+        };
+
+        // Symbol for U.S. Highways
+        var hwySym = {
+          type: "simple-line", // autocasts as new SimpleLineSymbol()
+          color: "#ff6207",
+          width: "2px",
+          style: "solid",
+        };
+
+        var sSym = {
+          type: "simple-line", // autocasts as new SimpleLineSymbol()
+          color: "yellow",
+          width: "2px",
+          style: "solid",
+        };
+        // Symbol for other major highways
+        var otherSym = {
+          type: "simple-line", // autocasts as new SimpleLineSymbol()
+          color: "#ef37ac",
+          width: "2px",
+          style: "solid",
+        };
+
+        var renderer = {
+          type: "unique-value", // autocasts as new UniqueValueRenderer()
+          legendOptions: {
+            title: "Freeway type",
+          },
+          defaultSymbol: otherSym,
+          defaultLabel: "State Highway",
+          field: "CLASS",
+          uniqueValueInfos: [
+            {
+              value: "I", // code for interstates/freeways
+              symbol: fwySym,
+              label: "Interstate",
+            },
+            {
+              value: "U", // code for U.S. highways
+              symbol: hwySym,
+              label: "US Highway",
+            },
+            {
+              value: "S",
+              symbol: sSym,
+              label: "S",
+            },
+          ],
+        };
+
+        // Set the renderer on the layer
+        var featureLayer = new FeatureLayer({
+          url:
+            "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Freeway_System/FeatureServer/2",
+          renderer: renderer,
+          title: "USA Freeway System",
+          minScale: 0,
+          maxScale: 0,
+        });
+
+        var map = new Map({
+          basemap: "dark-gray",
+          layers: [featureLayer],
+        });
+
+        var view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 4,
+          center: [-100, 40],
+        });
+
+        var legend = new Legend({
+          view: view,
+        });
+
+        view.ui.add(legend, "bottom-left");
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
