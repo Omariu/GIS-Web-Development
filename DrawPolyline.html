@@ -1,0 +1,107 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GIS Web Development - Draw Polyline</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.16/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.16/"></script>
+
+    <script>
+      var view;
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/Home",
+        "esri/views/draw/Draw",
+        "esri/Graphic",
+        "esri/geometry/Multipoint",
+      ], function (Map, MapView, Home, Draw, Graphic, Multipoint) {
+        view = new MapView({
+          id: "view",
+          container: "viewDiv",
+          map: new Map({
+            basemap: "dark-gray",
+          }),
+          zoom: 3,
+        });
+
+        //https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+        view.ui.add("line-button", "top-left");
+
+        var draw = new Draw({
+          view: view,
+        });
+
+        document.getElementById("line-button").onclick = function () {
+          var action = draw.create("polyline");
+
+          action.on(
+            ["vertex-add", "vertex-remove", "cursor-update", "draw-complete"],
+            function (evt) {
+              createPolylineGraphic(evt.vertices);
+            }
+          );
+
+          // action.on("vertex-add", function (evt) {
+          //   createPolylineGraphic(evt.vertices);
+          // });
+
+          // action.on("vertex-remove", function (evt) {
+          //   createPolylineGraphic(evt.vertices);
+          // });
+
+          // action.on("cursor-update", function (evt) {
+          //   createPolylineGraphic(evt.vertices);
+          // });
+
+          // action.on("draw-complete", function (evt) {
+          //   createPolylineGraphic(evt.vertices);
+          // });
+        };
+
+        function createPolylineGraphic(vertices) {
+          view.graphics.removeAll();
+          var polyline = {
+            type: "polyline", // autocasts as Polyline
+            paths: vertices,
+            spatialReference: view.spatialReference,
+          };
+
+          var graphic = new Graphic({
+            geometry: polyline,
+            symbol: {
+              type: "simple-line", // autocasts as SimpleLineSymbol
+              color: [4, 90, 141],
+              width: 3,
+              cap: "round",
+              join: "round",
+            },
+          });
+          view.graphics.add(graphic);
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv" style="width: 100%; height: 100%;">
+      <div
+        id="line-button"
+        class="esri-widget esri-widget--button esri-interactive"
+        title="Draw polyline"
+      >
+        <span class="esri-icon-polyline"></span>
+      </div>
+    </div>
+  </body>
+</html>
