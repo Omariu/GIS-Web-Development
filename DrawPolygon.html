@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GIS Web Development - Draw Polygon</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.16/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.16/"></script>
+
+    <script>
+      var view;
+      var graphic;
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/Home",
+        "esri/views/draw/Draw",
+        "esri/Graphic",
+        "esri/geometry/Multipoint",
+      ], function (Map, MapView, Home, Draw, Graphic, Multipoint) {
+        view = new MapView({
+          id: "view",
+          container: "viewDiv",
+          map: new Map({
+            basemap: "dark-gray",
+          }),
+          zoom: 3,
+        });
+
+        //https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+        view.ui.add("polygon-button", "top-left");
+
+        var draw = new Draw({
+          view: view,
+        });
+
+        document.getElementById("polygon-button").onclick = function () {
+          var action = draw.create("polygon");
+
+          action.on(
+            ["vertex-add", "vertex-remove", "cursor-update", "draw-complete"],
+            function (evt) {
+              createPolygonGraphic(evt.vertices);
+            }
+          );
+
+          // action.on("vertex-add", function (evt) {
+          //   createPolygonGraphic(evt.vertices);
+          // });
+
+          // action.on("vertex-remove", function (evt) {
+          //   createPolygonGraphic(evt.vertices);
+          // });
+
+          // action.on("cursor-update", function (evt) {
+          //   createPolygonGraphic(evt.vertices);
+          // });
+
+          // action.on("draw-complete", function (evt) {
+          //   createPolygonGraphic(evt.vertices);
+          // });
+        };
+
+        function createPolygonGraphic(vertices) {
+          view.graphics.removeAll();
+          var polygon = {
+            type: "polygon", // autocasts as Polygon
+            rings: vertices,
+            spatialReference: view.spatialReference,
+          };
+
+          graphic = new Graphic({
+            geometry: polygon,
+            symbol: {
+              type: "simple-fill", // autocasts as SimpleFillSymbol
+              color: "purple",
+              style: "solid",
+              outline: {
+                // autocasts as SimpleLineSymbol
+                color: "white",
+                width: 1,
+              },
+            },
+          });
+          view.graphics.add(graphic);
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv" style="width: 100%; height: 100%;">
+      <div
+        id="polygon-button"
+        class="esri-widget esri-widget--button esri-interactive"
+        title="Draw polyline"
+      >
+        <span class="esri-icon-polygon"></span>
+      </div>
+    </div>
+  </body>
+</html>
