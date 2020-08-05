@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>GIS Web Development - Sketch widget</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.16/esri/themes/dark-blue/main.css"
+    />
+    <script src="https://js.arcgis.com/4.16/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #draw-events {
+        padding: 10px;
+        font-size: 20px;
+      }
+    </style>
+    <script>
+      var view;
+      var sketch;
+      require([
+        "esri/widgets/Sketch",
+        "esri/Map",
+        "esri/layers/GraphicsLayer",
+        "esri/views/MapView",
+      ], function (Sketch, Map, GraphicsLayer, MapView) {
+        var layer = new GraphicsLayer();
+
+        var map = new Map({
+          basemap: "dark-gray",
+          layers: [layer],
+        });
+
+        view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 3,
+        });
+
+        sketch = new Sketch({
+          layer: layer,
+          view: view,
+          creationMode: "continuous",
+          availableCreateTools: [
+            "point",
+            "polyline",
+            "polygon",
+            "rectangle",
+            "circle",
+          ],
+        });
+
+        view.ui.add(sketch, "top-right");
+        view.ui.add("draw-events", "bottom-right");
+
+        sketch.on("create", function (event) {
+          document.querySelector(
+            "#draw-events"
+          ).innerHTML = `Tool: ${event.tool} - State: ${event.state} - Type: ${event.type}  `;
+        });
+
+        sketch.on("update", function (event) {
+          document.querySelector(
+            "#draw-events"
+          ).innerHTML = `Tool: ${event.tool} - State: ${event.state} - Type: ${event.type}  `;
+        });
+
+        sketch.on("delete", function (event) {
+          document.querySelector(
+            "#draw-events"
+          ).innerHTML = `Tool: ${event.tool} - Type: ${event.type}  `;
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv">
+      <div id="draw-events" class="esri-widget esri-interactive"></div>
+    </div>
+  </body>
+</html>
