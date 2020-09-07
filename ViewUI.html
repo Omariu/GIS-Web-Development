@@ -1,0 +1,126 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GIS Web Development - View UI</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+      }
+
+      #title {
+        font-size: large;
+        padding: 10px;
+        font-size: 25px;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/dark/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+
+    <script>
+      let view;
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/widgets/ScaleBar",
+        "esri/widgets/Home",
+        "esri/widgets/Compass",
+        "esri/widgets/BasemapToggle",
+        "esri/widgets/Search",
+      ], function (
+        Map,
+        MapView,
+        ScaleBar,
+        Home,
+        Compass,
+        BasemapToggle,
+        Search
+      ) {
+        view = new MapView({
+          id: "view",
+          container: "viewDiv",
+          map: new Map({
+            basemap: "hybrid",
+          }),
+          zoom: 3,
+        });
+
+        view.ui.add([
+          {
+            component: new Compass({
+              view,
+            }),
+            position: "top-left",
+            index: 3,
+          },
+          {
+            component: new Home({
+              view,
+            }),
+            position: "top-left",
+            index: 1,
+          },
+          {
+            component: new ScaleBar({
+              view,
+            }),
+            position: "bottom-left",
+          },
+          {
+            component: new BasemapToggle({
+              view,
+              nextBasemap: "dark-gray",
+            }),
+            position: "bottom-right",
+          },
+          {
+            component: new Search({
+              view,
+            }),
+            position: "top-right",
+          },
+
+          {
+            component: "title",
+            position: "top-left",
+            index: 0,
+          },
+
+          {
+            component: "line-button",
+            position: "top-left",
+          },
+          {
+            component: "map-pin",
+            position: "top-left",
+          },
+        ]);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv" style="width: 100%; height: 100%">
+      <div class="esri-widget" id="title">App Title</div>
+
+      <div
+        id="line-button"
+        class="esri-widget esri-widget--button esri-interactive"
+      >
+        <span class="esri-icon-polyline"></span>
+      </div>
+
+      <div
+        id="map-pin"
+        class="esri-widget esri-widget--button esri-interactive"
+      >
+        <span class="esri-icon-blank-map-pin"></span>
+      </div>
+    </div>
+  </body>
+</html>
